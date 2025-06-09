@@ -31,11 +31,11 @@ vim ~/.bashrc
 录入阿里云API的key，获取方式详见阿里云文档
 
 ```bash
-export 
-export 
+export ALIBABA_CLOUD_ACCESS_KEY_ID="xxxxxxxxxxxxxxxxxxx"
+export ALIBABA_CLOUD_ACCESS_KEY_SECRET="xxxxxxxxxxxxxxxxxxx"
 ```
 
-运行
+重新应用
 
 ````bash
 source ~/.bashrc
@@ -67,5 +67,11 @@ python app.py
 
 ````bash
 sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="x.x.x.x" port port="xxxx" protocol="tcp" accept'
+````
+
+重启防火墙
+
+````bash
+firewall-cmd --reload
 ````
 
