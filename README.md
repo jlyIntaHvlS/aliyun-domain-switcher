@@ -6,7 +6,7 @@
 
 ### 展示
 
-![image-20250609164559038](C:\Users\wangjm\AppData\Roaming\Typora\typora-user-images\image-20250609164559038.png)
+![image-20250609164559038](.\image-20250609164559038.png)
 
 ### 前置条件
 
