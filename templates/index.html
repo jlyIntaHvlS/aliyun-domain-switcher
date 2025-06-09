@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>直播域名开关</title>
+    <style>
+        body {
+            font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+            background: #f6f8fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 480px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 32px 32px 24px 32px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 28px;
+            font-size: 2em;
+            letter-spacing: 2px;
+        }
+        h3 {
+            margin-top: 32px;
+            margin-bottom: 12px;
+            color: #2196F3;
+            font-size: 1.15em;
+            border-left: 4px solid #2196F3;
+            padding-left: 8px;
+            background: #f0f7ff;
+        }
+        .domain-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .domain-row:last-child {
+            border-bottom: none;
+        }
+        .domain-name {
+            font-size: 1em;
+            color: #333;
+            letter-spacing: 1px;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 54px;
+            height: 28px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0;}
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        @media (max-width: 600px) {
+            .container { padding: 12px; }
+            .domain-name { font-size: 0.95em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>直播域名开关</h2>
+        {% for group, domains in domains_grouped.items() %}
+            <h3>{{ group|upper }}环境</h3>
+            {% for domain in domains %}
+                <div class="domain-row">
+                    <span class="domain-name">{{ domain.name }}</span>
+                    <label class="switch">
+                        <input type="checkbox" data-record-id="{{ domain.record_id }}" onchange="toggleDomain('{{ domain.record_id }}', this.checked)" {% if domain.status == 'enable' %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            {% endfor %}
+        {% endfor %}
+        <button id="refresh-btn" style="display:block;margin:0 auto 20px auto;padding:8px 24px;font-size:1em;background:#2196F3;color:#fff;border:none;border-radius:6px;cursor:pointer;">刷新状态</button>
+    </div>
+    <script>
+        function toggleDomain(record_id, checked) {
+            const action = checked ? 'start' : 'stop';
+            fetch('/toggle_domain', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    record_id: record_id,
+                    action: action
+                })
+            }).then(response => response.json()).then(data => {
+                if(data.status !== 'success') {
+                    alert('操作失败');
+                }
+            });
+        }
+
+        document.getElementById('refresh-btn').onclick = function() {
+            fetch('/refresh_status').then(res => res.json()).then(data => {
+                for (const [group, domains] of Object.entries(data)) {
+                    domains.forEach(domain => {
+                        const checkbox = document.querySelector(`input[data-record-id="${domain.record_id}"]`);
+                        if (checkbox) {
+                            checkbox.checked = domain.status === 'enable';
+                        }
+                    });
+                }
+            });
+        };
+    </script>
+</body>
+</html>
